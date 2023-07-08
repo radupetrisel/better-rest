@@ -11,3 +11,4 @@ As with apps from before, there will be some challenges at the end of the tutori
 ## Challenges
 
 **Challenge 1**: Replace each VStack in our form with a Section, where the text view is the title of the section. Do you prefer this layout or the VStack layout? It’s your app – you choose!
+**Challenge 2**: Replace the “Number of cups” stepper with a Picker showing the same range of values.
