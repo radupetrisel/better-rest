@@ -19,9 +19,9 @@ struct ContentView: View {
     @State private var desiredSleepAmount = 8.0
     @State private var coffeeAmount = 1
     
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
+    private var estimatedBedtime: Date? {
+        calculateBedtime()
+    }
     
     var body: some View {
         NavigationView {
@@ -47,22 +47,18 @@ struct ContentView: View {
                 } header: {
                     Text("How much coffee do you drink?")
                 }
+                
+                Section {
+                    Text(estimatedBedtime?.formatted(date: .omitted, time: .shortened) ?? "???")
+                } header: {
+                    Text("Your ideal bedtime is...")
+                }
             }
             .navigationTitle("BetterRest")
-            .toolbar {
-                Button("Calculate", action: calculateBedtime)
-            }
-            .alert(alertTitle, isPresented: $showingAlert) {
-                Button("Ok") {
-                    
-                }
-            } message: {
-                Text(alertMessage)
-            }
         }
     }
     
-    private func calculateBedtime() {
+    private func calculateBedtime() -> Date? {
         do {
             let config = MLModelConfiguration()
             let sleepCalculator = try SleepCalculator(configuration: config)
@@ -72,17 +68,10 @@ struct ContentView: View {
             let minute = (components.minute ?? 0) * 60
             
             let prediction = try sleepCalculator.prediction(wake: Double(hour + minute), estimatedSleep: desiredSleepAmount, coffee: Double(coffeeAmount))
-            let estimatedBedtime = wakeUpTime - prediction.actualSleep
-            
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = estimatedBedtime.formatted(date: .omitted, time: .shortened)
-            
+            return wakeUpTime - prediction.actualSleep
         } catch {
-            alertTitle = "Error"
-            alertMessage = "Sorry, there was a problem calculating your bedtime."
+            return nil
         }
-        
-        showingAlert = true
     }
 }
 
